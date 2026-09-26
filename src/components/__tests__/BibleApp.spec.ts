@@ -5,6 +5,8 @@ import App from '@/App.vue'
 import { BIBLE_BOOKS, CHINESE_BIBLE_ID, DEFAULT_BIBLE_ID } from '@/data/bibleBooks'
 import { clearPersistedBibleId, useBibleStore } from '@/stores/bible'
 
+const ODBM_API_ORIGIN = 'https://www.odbm.org'
+
 const mockGenesis1Response = {
   id: 'GEN.1',
   bibleId: DEFAULT_BIBLE_ID,
@@ -87,7 +89,9 @@ describe('Bible App', () => {
     const wrapper = mount(App)
     await flushPromises()
 
-    expect(fetchMock).toHaveBeenCalledWith('/api/bible/71c6eab17ae5b667-01/chapters/GEN.1')
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${ODBM_API_ORIGIN}/api/bible/71c6eab17ae5b667-01/chapters/GEN.1`,
+    )
     expect(wrapper.find('[data-testid="book-list-panel"]').exists()).toBe(true)
     expect(wrapper.find('[data-testid="chapter-list-panel"]').exists()).toBe(true)
     expect(wrapper.find('[data-testid="bible-content-panel"]').exists()).toBe(true)
@@ -139,7 +143,9 @@ describe('Bible App', () => {
     await wrapper.find('[data-testid="chapter-item-3"]').trigger('click')
     await flushPromises()
 
-    expect(fetchMock).toHaveBeenLastCalledWith('/api/bible/71c6eab17ae5b667-01/chapters/1SA.3')
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      `${ODBM_API_ORIGIN}/api/bible/71c6eab17ae5b667-01/chapters/1SA.3`,
+    )
     expect(wrapper.find('[data-testid="bible-content"]').text()).toContain(
       'Speak, for your servant is listening.',
     )
@@ -210,7 +216,9 @@ describe('Bible App', () => {
 
     const store = useBibleStore()
     expect(store.bibleId).toBe('c44765fbdfdb0ed9-01')
-    expect(fetchMock).toHaveBeenLastCalledWith('/api/bible/c44765fbdfdb0ed9-01/chapters/GEN.1')
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      `${ODBM_API_ORIGIN}/api/bible/c44765fbdfdb0ed9-01/chapters/GEN.1`,
+    )
     expect(wrapper.find('[data-testid="chapter-reference"]').text()).toBe('創世記 1')
     expect(wrapper.find('[data-testid="bible-version-badge"]').text()).toBe('CUV')
     expect(wrapper.find('[data-testid="bible-content"]').text()).toContain('起初，上帝創造天地。')
@@ -254,7 +262,9 @@ describe('Bible App', () => {
     expect(
       (reloadedWrapper.find('[data-testid="language-select"]').element as HTMLSelectElement).value,
     ).toBe('c44765fbdfdb0ed9-01')
-    expect(fetchMock).toHaveBeenCalledWith('/api/bible/c44765fbdfdb0ed9-01/chapters/GEN.1')
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${ODBM_API_ORIGIN}/api/bible/c44765fbdfdb0ed9-01/chapters/GEN.1`,
+    )
     expect(reloadedWrapper.find('[data-testid="chapter-reference"]').text()).toBe('創世記 1')
 
     reloadedWrapper.unmount()

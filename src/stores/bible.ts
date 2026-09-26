@@ -9,6 +9,7 @@ import {
 } from '@/data/bibleBooks'
 
 export const BIBLE_LANGUAGE_STORAGE_KEY = 'bible-app:bible-id'
+const BIBLE_API_ORIGIN = 'https://www.odbm.org'
 
 const fallbackStorage = new Map<string, string>()
 
@@ -120,10 +121,8 @@ export const useBibleStore = defineStore('bible', () => {
   const chapterId = computed<string>(() => `${selectedBookId.value}.${selectedChapter.value}`)
 
   const apiUrl = computed<string>(
-    () => `https://www.odbm.org/api/bible/${bibleId.value}/chapters/${chapterId.value}`,
+    () => `${BIBLE_API_ORIGIN}/api/bible/${bibleId.value}/chapters/${chapterId.value}`,
   )
-
-  const proxyUrl = computed<string>(() => `/api/bible/${bibleId.value}/chapters/${chapterId.value}`)
 
   const chapterContent = computed<string>(() => chapterData.value?.content ?? '')
 
@@ -137,16 +136,10 @@ export const useBibleStore = defineStore('bible', () => {
     error.value = null
 
     const targetChapterId = `${bookId}.${chapter}`
-    const localEndpoint = `/api/bible/${bibleId.value}/chapters/${targetChapterId}`
-    const remoteEndpoint = `https://www.odbm.org/api/bible/${bibleId.value}/chapters/${targetChapterId}`
+    const endpoint = `${BIBLE_API_ORIGIN}/api/bible/${bibleId.value}/chapters/${targetChapterId}`
 
     try {
-      let response = await fetch(localEndpoint)
-
-      const contentType = response.headers?.get?.('content-type') ?? ''
-      if (response.ok && contentType.includes('text/html')) {
-        response = await fetch(remoteEndpoint)
-      }
+      const response = await fetch(endpoint)
 
       if (!response.ok) {
         throw new Error(`Failed to load ${bookId} ${chapter} (HTTP ${response.status})`)
@@ -246,7 +239,6 @@ export const useBibleStore = defineStore('bible', () => {
     chapters,
     chapterId,
     apiUrl,
-    proxyUrl,
     chapterData,
     chapterContent,
     chapterReference,

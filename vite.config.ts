@@ -16,12 +16,4 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  server: {
-    proxy: {
-      '/api/bible': {
-        target: 'https://www.odbm.org',
-        changeOrigin: true,
-      },
-    },
-  },
 })
