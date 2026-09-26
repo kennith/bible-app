@@ -189,7 +189,7 @@ progress.loading-spinner:indeterminate {
   line-height: 0;
   margin-right: 0.35rem;
   margin-left: 0.15rem;
-  color: #d97706;
+  color: var(--color-slate-300);
   user-select: none;
 }
 
