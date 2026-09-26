@@ -1,0 +1,175 @@
+import { computed, ref } from 'vue'
+import { defineStore } from 'pinia'
+import { BIBLE_BOOKS, DEFAULT_BIBLE_ID, type BibleBook } from '@/data/bibleBooks'
+
+export interface BibleChapterNav {
+  id: string
+  number: string
+  bookId: string
+  reference: string | null
+}
+
+export interface BibleChapterResponse {
+  id: string
+  bibleId: string
+  number: string
+  bookId: string
+  reference: string
+  content: string
+  previous?: BibleChapterNav | null
+  next?: BibleChapterNav | null
+}
+
+export const useBibleStore = defineStore('bible', () => {
+  const books = ref<BibleBook[]>(BIBLE_BOOKS)
+  const bibleId = ref<string>(DEFAULT_BIBLE_ID)
+  const selectedBookId = ref<string>(BIBLE_BOOKS[0]!.id)
+  const selectedChapter = ref<number>(1)
+
+  const chapterData = ref<BibleChapterResponse | null>(null)
+  const loading = ref<boolean>(false)
+  const error = ref<string | null>(null)
+
+  let latestRequestId = 0
+
+  const selectedBook = computed<BibleBook>(() => {
+    return books.value.find((b) => b.id === selectedBookId.value) ?? books.value[0]!
+  })
+
+  const chapters = computed<number[]>(() => {
+    return Array.from({ length: selectedBook.value.chapters }, (_, i) => i + 1)
+  })
+
+  const chapterId = computed<string>(() => `${selectedBookId.value}.${selectedChapter.value}`)
+
+  const apiUrl = computed<string>(
+    () => `https://www.odbm.org/api/bible/${bibleId.value}/chapters/${chapterId.value}`,
+  )
+
+  const proxyUrl = computed<string>(() => `/api/bible/${bibleId.value}/chapters/${chapterId.value}`)
+
+  const chapterContent = computed<string>(() => chapterData.value?.content ?? '')
+
+  const chapterReference = computed<string>(
+    () => chapterData.value?.reference ?? `${selectedBook.value.name} ${selectedChapter.value}`,
+  )
+
+  async function fetchChapter(bookId = selectedBookId.value, chapter = selectedChapter.value) {
+    const requestId = ++latestRequestId
+    loading.value = true
+    error.value = null
+
+    const targetChapterId = `${bookId}.${chapter}`
+    const localEndpoint = `/api/bible/${bibleId.value}/chapters/${targetChapterId}`
+    const remoteEndpoint = `https://www.odbm.org/api/bible/${bibleId.value}/chapters/${targetChapterId}`
+
+    try {
+      let response = await fetch(localEndpoint)
+
+      const contentType = response.headers?.get?.('content-type') ?? ''
+      if (response.ok && contentType.includes('text/html')) {
+        response = await fetch(remoteEndpoint)
+      }
+
+      if (!response.ok) {
+        throw new Error(`Failed to load ${bookId} ${chapter} (HTTP ${response.status})`)
+      }
+
+      const data = (await response.json()) as BibleChapterResponse
+
+      if (requestId !== latestRequestId) {
+        return
+      }
+
+      chapterData.value = data
+    } catch (err) {
+      if (requestId !== latestRequestId) {
+        return
+      }
+      error.value = err instanceof Error ? err.message : 'Unable to fetch Bible chapter content.'
+      chapterData.value = null
+    } finally {
+      if (requestId === latestRequestId) {
+        loading.value = false
+      }
+    }
+  }
+
+  async function selectBook(bookId: string) {
+    const book = books.value.find((b) => b.id === bookId)
+    if (!book) return
+
+    selectedBookId.value = book.id
+    selectedChapter.value = 1
+    await fetchChapter(book.id, 1)
+  }
+
+  async function selectChapter(chapter: number) {
+    if (chapter < 1 || chapter > selectedBook.value.chapters) return
+
+    selectedChapter.value = chapter
+    await fetchChapter(selectedBookId.value, chapter)
+  }
+
+  const hasPreviousChapter = computed<boolean>(() => {
+    const bookIndex = books.value.findIndex((b) => b.id === selectedBookId.value)
+    return bookIndex > 0 || selectedChapter.value > 1
+  })
+
+  const hasNextChapter = computed<boolean>(() => {
+    const bookIndex = books.value.findIndex((b) => b.id === selectedBookId.value)
+    return bookIndex < books.value.length - 1 || selectedChapter.value < selectedBook.value.chapters
+  })
+
+  async function goToPreviousChapter() {
+    if (selectedChapter.value > 1) {
+      await selectChapter(selectedChapter.value - 1)
+      return
+    }
+    const bookIndex = books.value.findIndex((b) => b.id === selectedBookId.value)
+    if (bookIndex > 0) {
+      const prevBook = books.value[bookIndex - 1]!
+      selectedBookId.value = prevBook.id
+      selectedChapter.value = prevBook.chapters
+      await fetchChapter(prevBook.id, prevBook.chapters)
+    }
+  }
+
+  async function goToNextChapter() {
+    if (selectedChapter.value < selectedBook.value.chapters) {
+      await selectChapter(selectedChapter.value + 1)
+      return
+    }
+    const bookIndex = books.value.findIndex((b) => b.id === selectedBookId.value)
+    if (bookIndex >= 0 && bookIndex < books.value.length - 1) {
+      const nextBook = books.value[bookIndex + 1]!
+      selectedBookId.value = nextBook.id
+      selectedChapter.value = 1
+      await fetchChapter(nextBook.id, 1)
+    }
+  }
+
+  return {
+    books,
+    bibleId,
+    selectedBookId,
+    selectedChapter,
+    selectedBook,
+    chapters,
+    chapterId,
+    apiUrl,
+    proxyUrl,
+    chapterData,
+    chapterContent,
+    chapterReference,
+    loading,
+    error,
+    hasPreviousChapter,
+    hasNextChapter,
+    fetchChapter,
+    selectBook,
+    selectChapter,
+    goToPreviousChapter,
+    goToNextChapter,
+  }
+})

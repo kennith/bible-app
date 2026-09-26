@@ -1,0 +1,197 @@
+@import "tailwindcss";
+
+:root {
+  --brand-accent-light: #d97706;
+  --brand-accent-dark: #f59e0b;
+  --accent-color: var(--brand-accent-light);
+
+  @media (prefers-color-scheme: dark) {
+    --accent-color: var(--brand-accent-dark);
+  }
+
+  @supports (color: light-dark(white, black)) {
+    --accent-color: light-dark(var(--brand-accent-light), var(--brand-accent-dark));
+  }
+
+  color-scheme: light dark;
+  accent-color: var(--accent-color);
+}
+
+h1,
+h2,
+h3,
+.bible-content .s1 {
+  text-wrap: balance;
+}
+
+.bible-content p {
+  text-wrap: pretty;
+}
+
+/* Semantic <progress> indeterminate spinner per modern-web-guidance */
+@property --arc-start {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --arc-end {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --progress-dash-animation {
+  syntax: "*";
+  inherits: false;
+  initial-value: , progress-dash 3s ease-in-out infinite;
+}
+
+progress.loading-spinner:indeterminate::-webkit-progress-bar {
+  display: none;
+  background: none;
+}
+progress.loading-spinner:indeterminate::-webkit-progress-value {
+  display: none;
+  background: none;
+}
+progress.loading-spinner:indeterminate::-moz-progress-bar {
+  display: none;
+  background: none;
+}
+
+progress.loading-spinner:indeterminate {
+  --_from: calc(90deg + var(--arc-start, 0deg));
+  --_to: calc(90deg + var(--arc-end, 158deg));
+  --size: 36px;
+  --thickness: 3px;
+  --spinner-color: var(--accent-color, #d97706);
+  --track-color: rgba(148, 163, 184, 0.25);
+  --spinner-duration: 1.4s;
+  --_used-spinner-duration: var(--spinner-duration);
+
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  appearance: none;
+
+  background: conic-gradient(
+      from var(--_from),
+      var(--spinner-color) calc(var(--_to) - var(--_from)),
+      transparent 0
+    )
+    var(--track-color);
+
+  @supports (background-clip: border-area) {
+    background-clip: border-area;
+    border: var(--thickness) solid transparent;
+    background-origin: border-box;
+  }
+
+  @supports not (background-clip: border-area) {
+    --clip-boundary: calc(100% - var(--thickness));
+    mask-image: radial-gradient(
+      farthest-side,
+      transparent var(--clip-boundary),
+      black var(--clip-boundary)
+    );
+    border: 0;
+  }
+
+  animation:
+    progress-spin var(--_used-spinner-duration) linear infinite
+    var(--progress-dash-animation, );
+}
+
+@keyframes progress-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@keyframes progress-dash {
+  from {
+    --arc-start: 0deg;
+    --arc-end: 3deg;
+  }
+  50% {
+    --arc-start: 100deg;
+    --arc-end: 358deg;
+  }
+  to {
+    --arc-start: 360deg;
+    --arc-end: 363deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  progress.loading-spinner:indeterminate {
+    --_used-spinner-duration: 6s;
+  }
+}
+
+/* Bible API HTML Content Typography */
+.bible-content {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  line-height: 1.85;
+  font-size: 1.125rem;
+}
+
+.bible-content .s1,
+.bible-content .s2,
+.bible-content .ms1 {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #b45309;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bible-content .s1,
+  .bible-content .s2,
+  .bible-content .ms1 {
+    color: #fbbf24;
+  }
+}
+
+.bible-content .s1:first-child {
+  margin-top: 0;
+}
+
+.bible-content p {
+  margin-bottom: 1rem;
+}
+
+.bible-content p.b {
+  margin-bottom: 0.5rem;
+  height: 0.5rem;
+}
+
+.bible-content p.q1 {
+  margin-bottom: 0.15rem;
+  padding-left: 1.5rem;
+}
+
+.bible-content p.q2 {
+  margin-bottom: 0.15rem;
+  padding-left: 2.75rem;
+}
+
+.bible-content .v {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.72em;
+  font-weight: 700;
+  vertical-align: super;
+  line-height: 0;
+  margin-right: 0.35rem;
+  margin-left: 0.15rem;
+  color: #d97706;
+  user-select: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bible-content .v {
+    color: #f59e0b;
+  }
+}
