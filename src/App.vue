@@ -19,7 +19,7 @@ function handleLanguageChange(event: Event) {
     >
       <div class="flex items-center gap-3">
         <div
-          class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600 font-serif text-sm font-bold text-white shadow-2xs dark:bg-amber-500 dark:text-slate-950"
+          class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 font-serif text-sm font-bold text-white shadow-2xs dark:bg-amber-500 dark:text-slate-950"
         >
           B
         </div>
@@ -38,9 +38,7 @@ function handleLanguageChange(event: Event) {
 
       <div class="flex items-center gap-3 text-xs font-medium text-slate-600 dark:text-slate-300">
         <div class="flex items-center gap-2">
-          <label for="language-select" class="text-slate-500 dark:text-slate-400">
-            Language
-          </label>
+          <label for="language-select" class="text-slate-500 dark:text-slate-400"> Language </label>
           <select
             id="language-select"
             name="language"

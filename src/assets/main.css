@@ -145,7 +145,7 @@ progress.loading-spinner:indeterminate {
   font-weight: 700;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
-  color: #b45309;
+  color: var(--color-blue-700);
 }
 
 @media (prefers-color-scheme: dark) {

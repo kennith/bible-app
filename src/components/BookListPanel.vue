@@ -32,7 +32,7 @@ const filteredBooks = computed(() => {
           placeholder="Filter books..."
           aria-label="Filter books"
           data-testid="book-search-input"
-          class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-amber-500 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-amber-400 dark:focus:bg-slate-800"
+          class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-blue-400 dark:focus:bg-slate-800"
         />
       </div>
 
@@ -88,7 +88,7 @@ const filteredBooks = computed(() => {
             class="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition"
             :class="
               bibleStore.selectedBookId === book.id
-                ? 'bg-amber-50 font-semibold text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/50 dark:text-amber-200 dark:ring-amber-800/60'
+                ? 'bg-blue-50 font-semibold text-blue-900 ring-1 ring-blue-200 dark:bg-blue-950/50 dark:text-blue-200 dark:ring-blue-800/60'
                 : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60 dark:hover:text-white'
             "
             @click="bibleStore.selectBook(book.id)"
@@ -98,7 +98,7 @@ const filteredBooks = computed(() => {
               class="ml-2 shrink-0 rounded-md px-1.5 py-0.5 text-xs tabular-nums"
               :class="
                 bibleStore.selectedBookId === book.id
-                  ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/70 dark:text-amber-200'
+                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/70 dark:text-blue-200'
                   : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
               "
             >

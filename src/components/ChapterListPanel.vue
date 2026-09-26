@@ -43,8 +43,8 @@ const bibleStore = useBibleStore()
             class="flex h-9 w-full cursor-pointer items-center justify-center rounded-lg text-sm font-medium tabular-nums transition"
             :class="
               bibleStore.selectedChapter === chapter
-                ? 'bg-amber-600 text-white shadow-xs dark:bg-amber-500 dark:text-slate-950'
-                : 'border border-slate-200/80 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50/60 hover:text-amber-900 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:border-amber-700 dark:hover:bg-amber-950/40 dark:hover:text-amber-200'
+                ? 'bg-blue-600 text-white shadow-xs dark:bg-amber-500 dark:text-slate-950'
+                : 'border border-slate-200/80 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/60 hover:text-blue-900 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:border-amber-700 dark:hover:bg-amber-950/40 dark:hover:text-amber-200'
             "
             @click="bibleStore.selectChapter(chapter)"
           >
