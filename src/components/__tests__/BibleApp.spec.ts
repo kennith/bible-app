@@ -89,6 +89,7 @@ describe('Bible App', () => {
     const contentEl = wrapper.find('[data-testid="bible-content"]')
     expect(contentEl.exists()).toBe(true)
     expect(contentEl.text()).toContain('In the beginning God created the heavens and the earth.')
+    wrapper.unmount()
   })
 
   it('updates chapter list when selecting a book and fetches the selected chapter content', async () => {
@@ -131,5 +132,42 @@ describe('Bible App', () => {
     expect(wrapper.find('[data-testid="bible-content"]').text()).toContain(
       'Speak, for your servant is listening.',
     )
+    wrapper.unmount()
+  })
+
+  it('groups BookListPanel and ChapterListPanel together and toggles their display when pressing f', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: async () => mockGenesis1Response,
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const wrapper = mount(App, { attachTo: document.body })
+    await flushPromises()
+
+    const navGroup = wrapper.find('[data-testid="navigation-panels"]')
+    expect(navGroup.exists()).toBe(true)
+    expect(navGroup.find('[data-testid="book-list-panel"]').exists()).toBe(true)
+    expect(navGroup.find('[data-testid="chapter-list-panel"]').exists()).toBe(true)
+    expect(navGroup.isVisible()).toBe(true)
+
+    // Press 'f' to hide both panels
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'f' }))
+    await flushPromises()
+    expect(navGroup.isVisible()).toBe(false)
+
+    // Press 'f' again to show both panels
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'f' }))
+    await flushPromises()
+    expect(navGroup.isVisible()).toBe(true)
+
+    // Pressing 'f' while focused inside the search input should not toggle the panels
+    const searchInput = wrapper.find('[data-testid="book-search-input"]')
+    searchInput.element.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', bubbles: true }))
+    await flushPromises()
+    expect(navGroup.isVisible()).toBe(true)
+
+    wrapper.unmount()
   })
 })

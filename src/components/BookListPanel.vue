@@ -41,7 +41,7 @@ const filteredBooks = computed(() => {
       >
         <button
           type="button"
-          class="rounded-md py-1 transition"
+          class="cursor-pointer rounded-md py-1 transition"
           :class="
             testamentFilter === 'ALL'
               ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-700 dark:text-white'
@@ -53,7 +53,7 @@ const filteredBooks = computed(() => {
         </button>
         <button
           type="button"
-          class="rounded-md py-1 transition"
+          class="cursor-pointer rounded-md py-1 transition"
           :class="
             testamentFilter === 'OT'
               ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-700 dark:text-white'
@@ -65,7 +65,7 @@ const filteredBooks = computed(() => {
         </button>
         <button
           type="button"
-          class="rounded-md py-1 transition"
+          class="cursor-pointer rounded-md py-1 transition"
           :class="
             testamentFilter === 'NT'
               ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-700 dark:text-white'
@@ -85,7 +85,7 @@ const filteredBooks = computed(() => {
             type="button"
             :data-testid="`book-item-${book.id}`"
             :aria-current="bibleStore.selectedBookId === book.id ? 'true' : undefined"
-            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition"
+            class="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition"
             :class="
               bibleStore.selectedBookId === book.id
                 ? 'bg-amber-50 font-semibold text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/50 dark:text-amber-200 dark:ring-amber-800/60'

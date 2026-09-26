@@ -40,7 +40,7 @@ const bibleStore = useBibleStore()
             :data-testid="`chapter-item-${chapter}`"
             :aria-label="`Chapter ${chapter}`"
             :aria-current="bibleStore.selectedChapter === chapter ? 'true' : undefined"
-            class="flex h-9 w-full items-center justify-center rounded-lg text-sm font-medium tabular-nums transition"
+            class="flex h-9 w-full cursor-pointer items-center justify-center rounded-lg text-sm font-medium tabular-nums transition"
             :class="
               bibleStore.selectedChapter === chapter
                 ? 'bg-amber-600 text-white shadow-xs dark:bg-amber-500 dark:text-slate-950'
