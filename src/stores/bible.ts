@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import {
   BIBLE_BOOKS,
@@ -7,6 +7,68 @@ import {
   type BibleBook,
   type BibleLanguageOption,
 } from '@/data/bibleBooks'
+
+export const BIBLE_LANGUAGE_STORAGE_KEY = 'bible-app:bible-id'
+
+const fallbackStorage = new Map<string, string>()
+
+function getStoredValue(key: string): string | null {
+  try {
+    if (typeof window !== 'undefined' && typeof window.localStorage?.getItem === 'function') {
+      return window.localStorage.getItem(key)
+    }
+  } catch {
+    // Ignore storage access errors in restricted environments
+  }
+  return fallbackStorage.get(key) ?? null
+}
+
+function setStoredValue(key: string, value: string): void {
+  try {
+    if (typeof window !== 'undefined' && typeof window.localStorage?.setItem === 'function') {
+      window.localStorage.setItem(key, value)
+      return
+    }
+  } catch {
+    // Ignore storage write errors in restricted environments
+  }
+  fallbackStorage.set(key, value)
+}
+
+export function clearPersistedBibleId(): void {
+  try {
+    if (typeof window !== 'undefined' && typeof window.localStorage?.removeItem === 'function') {
+      window.localStorage.removeItem(BIBLE_LANGUAGE_STORAGE_KEY)
+    }
+  } catch {
+    // Ignore storage access errors
+  }
+  fallbackStorage.delete(BIBLE_LANGUAGE_STORAGE_KEY)
+}
+
+function resolveLanguageBibleId(
+  languageOrBibleId: string,
+  availableLanguages: BibleLanguageOption[] = BIBLE_LANGUAGES,
+): string {
+  const normalized = languageOrBibleId.trim().toLowerCase()
+  const matched = availableLanguages.find(
+    (lang) =>
+      lang.id === languageOrBibleId ||
+      lang.code === normalized ||
+      lang.label.toLowerCase().includes(normalized),
+  )
+  return matched ? matched.id : languageOrBibleId
+}
+
+function readInitialBibleId(): string {
+  const saved = getStoredValue(BIBLE_LANGUAGE_STORAGE_KEY)
+  if (!saved) return DEFAULT_BIBLE_ID
+
+  const matched = BIBLE_LANGUAGES.find(
+    (lang) => lang.id === saved || lang.code === saved.trim().toLowerCase(),
+  )
+  return matched ? matched.id : DEFAULT_BIBLE_ID
+}
 
 export interface BibleChapterNav {
   id: string
@@ -29,7 +91,7 @@ export interface BibleChapterResponse {
 export const useBibleStore = defineStore('bible', () => {
   const books = ref<BibleBook[]>(BIBLE_BOOKS)
   const languages = ref<BibleLanguageOption[]>(BIBLE_LANGUAGES)
-  const bibleId = ref<string>(DEFAULT_BIBLE_ID)
+  const bibleId = ref<string>(readInitialBibleId())
   const selectedBookId = ref<string>(BIBLE_BOOKS[0]!.id)
   const selectedChapter = ref<number>(1)
 
@@ -38,6 +100,10 @@ export const useBibleStore = defineStore('bible', () => {
   const error = ref<string | null>(null)
 
   let latestRequestId = 0
+
+  watch(bibleId, (newBibleId) => {
+    setStoredValue(BIBLE_LANGUAGE_STORAGE_KEY, newBibleId)
+  })
 
   const selectedLanguage = computed<BibleLanguageOption>(() => {
     return languages.value.find((l) => l.id === bibleId.value) ?? languages.value[0]!
@@ -123,17 +189,11 @@ export const useBibleStore = defineStore('bible', () => {
   }
 
   async function selectLanguage(languageOrBibleId: string) {
-    const normalized = languageOrBibleId.trim().toLowerCase()
-    const matched = languages.value.find(
-      (lang) =>
-        lang.id === languageOrBibleId ||
-        lang.code === normalized ||
-        lang.label.toLowerCase().includes(normalized),
-    )
-    const nextBibleId = matched ? matched.id : languageOrBibleId
+    const nextBibleId = resolveLanguageBibleId(languageOrBibleId, languages.value)
     if (!nextBibleId) return
 
     bibleId.value = nextBibleId
+    setStoredValue(BIBLE_LANGUAGE_STORAGE_KEY, nextBibleId)
     await fetchChapter(selectedBookId.value, selectedChapter.value)
   }
 

@@ -3,7 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import App from '@/App.vue'
 import { BIBLE_BOOKS, CHINESE_BIBLE_ID, DEFAULT_BIBLE_ID } from '@/data/bibleBooks'
-import { useBibleStore } from '@/stores/bible'
+import { clearPersistedBibleId, useBibleStore } from '@/stores/bible'
 
 const mockGenesis1Response = {
   id: 'GEN.1',
@@ -37,6 +37,7 @@ const mock1Samuel3Response = {
 
 describe('Bible App', () => {
   beforeEach(() => {
+    clearPersistedBibleId()
     setActivePinia(createPinia())
     vi.restoreAllMocks()
   })
@@ -215,5 +216,47 @@ describe('Bible App', () => {
     expect(wrapper.find('[data-testid="bible-content"]').text()).toContain('起初，上帝創造天地。')
 
     wrapper.unmount()
+  })
+
+  it('persists the selected language choice across reloads', async () => {
+    const fetchMock = vi.fn().mockImplementation(async (url: string) => {
+      if (url.includes('c44765fbdfdb0ed9-01')) {
+        return {
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => mockChineseGenesis1Response,
+        }
+      }
+      return {
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => mockGenesis1Response,
+      }
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const firstWrapper = mount(App)
+    await flushPromises()
+
+    await firstWrapper.find('[data-testid="language-select"]').setValue('c44765fbdfdb0ed9-01')
+    await flushPromises()
+    firstWrapper.unmount()
+
+    // Simulate reload with a fresh Pinia instance
+    fetchMock.mockClear()
+    setActivePinia(createPinia())
+
+    const reloadedWrapper = mount(App)
+    await flushPromises()
+
+    const reloadedStore = useBibleStore()
+    expect(reloadedStore.bibleId).toBe('c44765fbdfdb0ed9-01')
+    expect(
+      (reloadedWrapper.find('[data-testid="language-select"]').element as HTMLSelectElement).value,
+    ).toBe('c44765fbdfdb0ed9-01')
+    expect(fetchMock).toHaveBeenCalledWith('/api/bible/c44765fbdfdb0ed9-01/chapters/GEN.1')
+    expect(reloadedWrapper.find('[data-testid="chapter-reference"]').text()).toBe('創世記 1')
+
+    reloadedWrapper.unmount()
   })
 })
