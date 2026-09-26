@@ -10,3 +10,11 @@
   - `refactor: <concise summary of the refactoring>`
   - `chore: <concise summary of maintenance/config changes>`
   - Keep the subject line imperative, lowercase after the prefix, and without a trailing period.
+- **Include Summary of Changes in Commit Body**: Every commit MUST include a body (separated from the subject line by a blank line) containing a `Summary of Changes:` section that groups the changes by area/file with concise bullet points:
+  ```text
+  <type>: <concise summary>
+
+  Summary of Changes:
+  - <Area / Component> (<file>): <description of what was added or updated>
+  - <Area / Component> (<file>): <description of what was added or updated>
+  ```
