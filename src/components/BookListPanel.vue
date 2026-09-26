@@ -25,20 +25,7 @@ const filteredBooks = computed(() => {
     class="flex h-full flex-col border-b border-slate-200 bg-white lg:w-64 lg:shrink-0 lg:border-r lg:border-b-0 dark:border-slate-800 dark:bg-slate-900"
   >
     <div class="border-b border-slate-200 p-4 dark:border-slate-800">
-      <div class="flex items-center justify-between">
-        <h2
-          class="text-sm font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400"
-        >
-          Books
-        </h2>
-        <span
-          class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-        >
-          {{ filteredBooks.length }}
-        </span>
-      </div>
-
-      <div class="mt-3">
+      <div>
         <input
           v-model="searchQuery"
           type="search"
