@@ -136,6 +136,7 @@ progress.loading-spinner:indeterminate {
   font-size: 1.125rem;
 }
 
+.bible-content .s,
 .bible-content .s1,
 .bible-content .s2,
 .bible-content .ms1 {
@@ -148,6 +149,7 @@ progress.loading-spinner:indeterminate {
 }
 
 @media (prefers-color-scheme: dark) {
+  .bible-content .s,
   .bible-content .s1,
   .bible-content .s2,
   .bible-content .ms1 {
@@ -155,6 +157,7 @@ progress.loading-spinner:indeterminate {
   }
 }
 
+.bible-content .s:first-child,
 .bible-content .s1:first-child {
   margin-top: 0;
 }

@@ -5,7 +5,33 @@ export interface BibleBook {
   testament: 'OT' | 'NT'
 }
 
+export interface BibleLanguageOption {
+  id: string
+  code: 'en' | 'zh'
+  label: string
+  shortLabel: string
+  versionName: string
+}
+
 export const DEFAULT_BIBLE_ID = '71c6eab17ae5b667-01'
+export const CHINESE_BIBLE_ID = 'c44765fbdfdb0ed9-01'
+
+export const BIBLE_LANGUAGES: BibleLanguageOption[] = [
+  {
+    id: DEFAULT_BIBLE_ID,
+    code: 'en',
+    label: 'English',
+    shortLabel: 'NIV',
+    versionName: 'New International Version (NIV)',
+  },
+  {
+    id: CHINESE_BIBLE_ID,
+    code: 'zh',
+    label: 'Chinese (中文)',
+    shortLabel: 'CUV',
+    versionName: 'Chinese Union Version (和合本)',
+  },
+]
 
 export const BIBLE_BOOKS: BibleBook[] = [
   // Old Testament (39 books)

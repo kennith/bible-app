@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import App from '@/App.vue'
-import { BIBLE_BOOKS } from '@/data/bibleBooks'
+import { BIBLE_BOOKS, CHINESE_BIBLE_ID, DEFAULT_BIBLE_ID } from '@/data/bibleBooks'
 import { useBibleStore } from '@/stores/bible'
 
 const mockGenesis1Response = {
   id: 'GEN.1',
-  bibleId: '71c6eab17ae5b667-01',
+  bibleId: DEFAULT_BIBLE_ID,
   number: '1',
   bookId: 'GEN',
   reference: 'Genesis 1',
@@ -15,9 +15,19 @@ const mockGenesis1Response = {
     '<p class="s1">The Beginning</p><p class="pi"><span class="v">1</span>In the beginning God created the heavens and the earth.</p>',
 }
 
+const mockChineseGenesis1Response = {
+  id: 'GEN.1',
+  bibleId: CHINESE_BIBLE_ID,
+  number: '1',
+  bookId: 'GEN',
+  reference: '創世記 1',
+  content:
+    '<p class="s">上帝的創造</p><p class="p"><span class="v">1</span>起初，上帝創造天地。</p>',
+}
+
 const mock1Samuel3Response = {
   id: '1SA.3',
-  bibleId: '71c6eab17ae5b667-01',
+  bibleId: DEFAULT_BIBLE_ID,
   number: '3',
   bookId: '1SA',
   reference: '1 Samuel 3',
@@ -167,6 +177,42 @@ describe('Bible App', () => {
     searchInput.element.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', bubbles: true }))
     await flushPromises()
     expect(navGroup.isVisible()).toBe(true)
+
+    wrapper.unmount()
+  })
+
+  it('allows the user to choose Chinese language (c44765fbdfdb0ed9-01) and fetches Chinese chapter content', async () => {
+    const fetchMock = vi.fn().mockImplementation(async (url: string) => {
+      if (url.includes('c44765fbdfdb0ed9-01')) {
+        return {
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => mockChineseGenesis1Response,
+        }
+      }
+      return {
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => mockGenesis1Response,
+      }
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const wrapper = mount(App)
+    await flushPromises()
+
+    const languageSelect = wrapper.find('[data-testid="language-select"]')
+    expect(languageSelect.exists()).toBe(true)
+
+    await languageSelect.setValue('c44765fbdfdb0ed9-01')
+    await flushPromises()
+
+    const store = useBibleStore()
+    expect(store.bibleId).toBe('c44765fbdfdb0ed9-01')
+    expect(fetchMock).toHaveBeenLastCalledWith('/api/bible/c44765fbdfdb0ed9-01/chapters/GEN.1')
+    expect(wrapper.find('[data-testid="chapter-reference"]').text()).toBe('創世記 1')
+    expect(wrapper.find('[data-testid="bible-version-badge"]').text()).toBe('CUV')
+    expect(wrapper.find('[data-testid="bible-content"]').text()).toContain('起初，上帝創造天地。')
 
     wrapper.unmount()
   })

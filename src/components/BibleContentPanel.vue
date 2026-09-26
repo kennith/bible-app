@@ -6,7 +6,7 @@ const bibleStore = useBibleStore()
 const scrollContainer = ref<HTMLElement | null>(null)
 
 watch(
-  () => bibleStore.chapterId,
+  [() => bibleStore.chapterId, () => bibleStore.bibleId],
   () => {
     scrollContainer.value?.scrollTo?.({ top: 0, behavior: 'smooth' })
   },
@@ -32,9 +32,10 @@ watch(
             {{ bibleStore.chapterReference }}
           </h1>
           <span
+            data-testid="bible-version-badge"
             class="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-semibold tracking-wide text-amber-900 uppercase dark:bg-amber-950 dark:text-amber-300"
           >
-            NIV
+            {{ bibleStore.selectedLanguage.shortLabel }}
           </span>
         </div>
         <p class="mt-0.5 font-mono text-xs text-slate-400 dark:text-slate-500">

@@ -1,6 +1,12 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { BIBLE_BOOKS, DEFAULT_BIBLE_ID, type BibleBook } from '@/data/bibleBooks'
+import {
+  BIBLE_BOOKS,
+  BIBLE_LANGUAGES,
+  DEFAULT_BIBLE_ID,
+  type BibleBook,
+  type BibleLanguageOption,
+} from '@/data/bibleBooks'
 
 export interface BibleChapterNav {
   id: string
@@ -22,6 +28,7 @@ export interface BibleChapterResponse {
 
 export const useBibleStore = defineStore('bible', () => {
   const books = ref<BibleBook[]>(BIBLE_BOOKS)
+  const languages = ref<BibleLanguageOption[]>(BIBLE_LANGUAGES)
   const bibleId = ref<string>(DEFAULT_BIBLE_ID)
   const selectedBookId = ref<string>(BIBLE_BOOKS[0]!.id)
   const selectedChapter = ref<number>(1)
@@ -31,6 +38,10 @@ export const useBibleStore = defineStore('bible', () => {
   const error = ref<string | null>(null)
 
   let latestRequestId = 0
+
+  const selectedLanguage = computed<BibleLanguageOption>(() => {
+    return languages.value.find((l) => l.id === bibleId.value) ?? languages.value[0]!
+  })
 
   const selectedBook = computed<BibleBook>(() => {
     return books.value.find((b) => b.id === selectedBookId.value) ?? books.value[0]!
@@ -111,6 +122,21 @@ export const useBibleStore = defineStore('bible', () => {
     await fetchChapter(selectedBookId.value, chapter)
   }
 
+  async function selectLanguage(languageOrBibleId: string) {
+    const normalized = languageOrBibleId.trim().toLowerCase()
+    const matched = languages.value.find(
+      (lang) =>
+        lang.id === languageOrBibleId ||
+        lang.code === normalized ||
+        lang.label.toLowerCase().includes(normalized),
+    )
+    const nextBibleId = matched ? matched.id : languageOrBibleId
+    if (!nextBibleId) return
+
+    bibleId.value = nextBibleId
+    await fetchChapter(selectedBookId.value, selectedChapter.value)
+  }
+
   const hasPreviousChapter = computed<boolean>(() => {
     const bookIndex = books.value.findIndex((b) => b.id === selectedBookId.value)
     return bookIndex > 0 || selectedChapter.value > 1
@@ -151,7 +177,9 @@ export const useBibleStore = defineStore('bible', () => {
 
   return {
     books,
+    languages,
     bibleId,
+    selectedLanguage,
     selectedBookId,
     selectedChapter,
     selectedBook,
@@ -169,6 +197,7 @@ export const useBibleStore = defineStore('bible', () => {
     fetchChapter,
     selectBook,
     selectChapter,
+    selectLanguage,
     goToPreviousChapter,
     goToNextChapter,
   }

@@ -3,6 +3,11 @@ import HomeView from '@/views/HomeView.vue'
 import { useBibleStore } from '@/stores/bible'
 
 const bibleStore = useBibleStore()
+
+function handleLanguageChange(event: Event) {
+  const target = event.target as HTMLSelectElement
+  bibleStore.selectLanguage(target.value)
+}
 </script>
 
 <template>
@@ -22,13 +27,39 @@ const bibleStore = useBibleStore()
           <span class="text-base font-bold tracking-tight text-slate-900 dark:text-white">
             Bible Reader
           </span>
-          <span class="ml-2 hidden text-xs text-slate-500 sm:inline dark:text-slate-400">
-            New International Version (NIV)
+          <span
+            data-testid="bible-version-name"
+            class="ml-2 hidden text-xs text-slate-500 sm:inline dark:text-slate-400"
+          >
+            {{ bibleStore.selectedLanguage.versionName }}
           </span>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+      <div class="flex items-center gap-3 text-xs font-medium text-slate-600 dark:text-slate-300">
+        <div class="flex items-center gap-2">
+          <label for="language-select" class="text-slate-500 dark:text-slate-400">
+            Language
+          </label>
+          <select
+            id="language-select"
+            name="language"
+            data-testid="language-select"
+            :value="bibleStore.bibleId"
+            class="cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-900 transition focus:border-amber-500 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-amber-400"
+            @change="handleLanguageChange"
+          >
+            <option
+              v-for="lang in bibleStore.languages"
+              :key="lang.id"
+              :value="lang.id"
+              :data-testid="`language-option-${lang.code}`"
+            >
+              {{ lang.label }}
+            </option>
+          </select>
+        </div>
+
         <span
           class="rounded-md bg-slate-100 px-2.5 py-1 dark:bg-slate-800"
           data-testid="active-selection-badge"
