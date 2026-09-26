@@ -37,3 +37,18 @@ npm run lint
 ```sh
 npm run format
 ```
+
+## Deploy to GitHub Pages
+
+This project is configured to deploy automatically to GitHub Pages when code is pushed to the `main` branch.
+
+1. In GitHub, open repository settings.
+2. Go to `Pages`.
+3. Set `Source` to `GitHub Actions`.
+4. Push to `main` and wait for the `Deploy to GitHub Pages` workflow to finish.
+
+The Vite base path defaults to `/bible-app/` for this repository. If you rename the repository or use a custom domain, override it during build:
+
+```sh
+VITE_BASE_PATH=/your-repo-name/ npm run build
+```

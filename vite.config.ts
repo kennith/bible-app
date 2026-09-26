@@ -5,8 +5,11 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 
+const repoBasePath = process.env.VITE_BASE_PATH ?? '/bible-app/'
+
 // https://vite.dev/config/
 export default defineConfig({
+  base: repoBasePath,
   plugins: [vue(), vueDevTools(), tailwindcss()],
   resolve: {
     alias: {
